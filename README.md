@@ -2,7 +2,16 @@
 A Recon Bot 
 
 ## Required Tools On System :
-go(language), gowitness, assetfinder, waybackurls, subfinder, gf( tool available on github) with the list of (https://github.com/1ndianl33t/Gf-Patterns),  httprobe, findomain , dnsenum, dnsrecon.
+1.go(language), <br>
+2.gowitness, <br>
+3.assetfinder, <br>
+4.waybackurls, <br>
+5.subfinder, <br>
+6.gf( tool available on github) with the list of (https://github.com/1ndianl33t/Gf-Patterns),  <br>
+7.httprobe, <br>
+8.findomain , <br>
+9.dnsenum, <br>
+10.dnsrecon.<br>
 
 ## Installation :
 1.git clone https://github.com/Cloneifer/ottobot.git <br>
