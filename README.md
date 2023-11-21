@@ -14,7 +14,7 @@ A Recon Bot
 10.dnsrecon.<br>
 
 ## Installation :
-1.git clone https://github.com/Cloneifer/ottobot.git <br>
+1.git clone https://github.com/ho1x1ow/ottobot.git <br>
 2. cd ottobot <br>
 3. chmod +x ottobot<br>
 4. sudo mv ottobot /usr/bin/<br>
