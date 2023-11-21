@@ -1,0 +1,90 @@
+#!/bin/bash
+
+domain=$1
+
+RED="\033[1;31m"
+RESET="\033[0m"
+
+subdomain_path=$domain/subdomains
+screenshot_path=$domain/screenshots
+scan_path=$domain/scans
+wayback_path=$domain/waybacks
+dns_path=$domain/dns
+
+
+if [ ! -d "$domian" ] ; then
+	mkdir $domain
+fi
+
+
+if [ ! -d "$subdomain_path" ] ; then
+	mkdir $subdomain_path
+fi
+
+
+if [ ! -d "$screenshot_path" ] ; then
+	mkdir $screenshot_path
+fi
+
+
+if [ ! -d "$scan_path" ] ; then
+	mkdir $scan_path
+fi
+
+
+if [ ! -d "$wayback_path" ] ; then
+	mkdir $wayback_path
+fi
+
+
+if [ ! -d "$dns_path" ] ; then
+	mkdir $dns_path
+fi
+
+
+echo -e "${RED} [+] Launching Subfinder .............. ${RESET}"
+subfinder -d $domain | sort -u > $subdomain_path/found.txt
+
+
+echo -e "${RED} [+] Launching assetfinder .............. ${RESET}"
+assetfinder $domain | grep $domain | sort -u >> $subdomain_path/found.txt
+
+echo -e "${RED} [+] Launching Findomain .............. ${RESET}"
+findomain -t $domain | sort -u >> $subdomain_path/found.txt; 
+
+cat $subdomain_path/found.txt | sort -u > $subdomain_path/subs.txt
+
+
+echo -e "${RED} [+] Finding  Alive Subdomains .............. ${RESET}"
+cat $subdomain_path/subs.txt | grep $domain | sort -u | httprobe -prefer-https | grep https | sed 's/https\?:\/\///' | tee -a $subdomain_path/alive.txt ; rm subs.txt
+
+
+echo -e "${RED} [+] Taking Screenshots Of Alive Subdomains .............. ${RESET}"
+gowitness file -f $subdomain_path/alive.txt -p $screenshot_path/  --no-http
+
+echo -e "${RED} [+] Finding Ports And Services .............. ${RESET}"
+nmap -iL $subdomain_path/alive.txt -T4 -A -p- -sC -sV -oN $scan_path/scanreport.txt
+
+
+echo -e "${RED} [+] Finding Wayback Data .............. ${RESET}"
+cat $subdomain_path/alive.txt | waybackurls | sort -u >> $wayback_path/backed
+
+echo -e "${RED} [+] Grepping Parameters .............. ${RESET}"
+cat $wayback_path/backed | gf sqli | sort -u >> $wayback_path/sqlparams;
+cat $wayback_path/backed | gf idor | sort -u >> $wayback_path/idorparams;
+cat $wayback_path/backed | gf img-traversal | sort -u >> $wayback_path/img-traversalparams;
+cat $wayback_path/backed | gf interestingEXT | sort -u >> $wayback_path/interestingEXTparams;
+cat $wayback_path/backed | gf interestingparams | sort -u >> $wayback_path/interestingparams;
+cat $wayback_path/backed | gf interestingsubs | sort -u >> $wayback_path/interestingsubs;
+cat $wayback_path/backed | gf lfi | sort -u >> $wayback_path/lfiparams;
+cat $wayback_path/backed | gf rce | sort -u >> $wayback_path/rceparams;
+cat $wayback_path/backed | gf redirect | sort -u >> $wayback_path/redirectparams;
+cat $wayback_path/backed | gf ssrf | sort -u >> $wayback_path/ssrfparams;
+cat $wayback_path/backed | gf ssti | sort -u >> $wayback_path/sstiparams;
+cat $wayback_path/backed | gf xss | sort -u >> $wayback_path/xssparams;
+
+
+
+echo -e "${RED} [+] Dns Enumration .............. ${RESET}"
+dnsenum $subdomain_path/alive.txt >> $dns_path/dnsenumed.txt;
+dnsrecon -d $subdomain_path/alive.txt >> $dns_path/dnsreconed.txt
