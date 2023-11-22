@@ -62,9 +62,6 @@ cat $subdomain_path/subs.txt | grep $domain | sort -u | httprobe -prefer-https |
 echo -e "${RED} [+] Taking Screenshots Of Alive Subdomains .............. ${RESET}"
 gowitness file -f $subdomain_path/alive.txt -p $screenshot_path/  --no-http
 
-echo -e "${RED} [+] Finding Ports And Services .............. ${RESET}"
-nmap -iL $subdomain_path/alive.txt -T4 -A -p- -sC -sV -oN $scan_path/scanreport.txt
-
 
 echo -e "${RED} [+] Finding Wayback Data .............. ${RESET}"
 cat $subdomain_path/alive.txt | waybackurls | sort -u >> $wayback_path/backed
@@ -84,7 +81,10 @@ cat $wayback_path/backed | gf ssti | sort -u >> $wayback_path/sstiparams;
 cat $wayback_path/backed | gf xss | sort -u >> $wayback_path/xssparams;
 
 
-
 echo -e "${RED} [+] Dns Enumration .............. ${RESET}"
 dnsenum $subdomain_path/alive.txt >> $dns_path/dnsenumed.txt;
 dnsrecon -d $subdomain_path/alive.txt >> $dns_path/dnsreconed.txt
+
+
+echo -e "${RED} [+] Finding Ports And Services .............. ${RESET}"
+nmap -iL $subdomain_path/alive.txt -T4 -A -p- -sC -sV -oN $scan_path/scanreport.txt
